@@ -1,0 +1,88 @@
+IBDLD version 3.38.
+Process step:	0
+The program are using 8 cores!
+All input files:
+Pedigree file:	Polymorphic_GBS.plk.ped
+Map File:	Polymorphic_GBS.plk.map
+The SNP in Map file is to be sorted!
+Background LD parameter filenames prefix:	./GIBDLD
+Kinship, IBD etc filenames prefix:	./GIBDLD
+Using Method:	GIBDLD	 PreviousLociNum=10
+Available RAM:	1000MB
+Trait column number:	0
+Genotype error rate:	0.005
+The minium genotype call rate:	0.99
+The individual genotype missing rate threshold:	0.8
+The data analysis is based on	9 hidden IBD states.
+MAF threshold:	0
+Keep all adjacent redundant SNPs.
+Analyzed chromosome:	all
+Output IBD Type for each locus:	90
+Don't output empirical inbreeding coefficients.
+Output HBD probability at each locus.
+Output IBD segment setting:
+Range from 0.69 to 1.1
+SNP number threshold:	50
+SNP length threshold:	500
+
+Run step 1 (LD parameters estimation).
+Used method and parameter:	GIBDLD	10
+Reading the file of Polymorphic_GBS.plk.map
+Map File of Polymorphic_GBS.plk.map consists of 7993 markers.
+There are 502 individuals to be analyzed!
+All available chromosome:	1	2	3	4	5	6	7	8	9	10	
+Analyzed chromosome: 1, Number of SNPs:1343
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	280
+Number of SNPs:	1343
+Analyzed chromosome: 2, Number of SNPs:901
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	284
+Number of SNPs:	901
+Analyzed chromosome: 3, Number of SNPs:932
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	211
+Number of SNPs:	932
+Analyzed chromosome: 4, Number of SNPs:881
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	284
+Number of SNPs:	881
+Analyzed chromosome: 5, Number of SNPs:893
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	328
+Number of SNPs:	893
+Analyzed chromosome: 6, Number of SNPs:576
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	34
+Number of SNPs:	576
+Analyzed chromosome: 7, Number of SNPs:651
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	270
+Number of SNPs:	651
+Analyzed chromosome: 8, Number of SNPs:718
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	206
+Number of SNPs:	718
+Analyzed chromosome: 9, Number of SNPs:591
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	259
+Number of SNPs:	591
+Analyzed chromosome: 10, Number of SNPs:507
+The LD parameter estimation along the chromosome is divided into 1	 parts.
+Training sample size:	281
+Number of SNPs:	507
+Step 1 is finished, it took 0.25 minutes!
+Run step 2 (IBD sharing estimation)!
+Used method and parameter in step 1:	GIBDLD	10	2	
+Available analysis chromosome:	1	2	3	4	5	6	7	8	9	10	in the step 1!
+Run IBD sharing estimation for chromosome 1 !
+Run IBD sharing estimation for chromosome 2 !
+Run IBD sharing estimation for chromosome 3 !
+Run IBD sharing estimation for chromosome 4 !
+Run IBD sharing estimation for chromosome 5 !
+Run IBD sharing estimation for chromosome 6 !
+Run IBD sharing estimation for chromosome 7 !
+Run IBD sharing estimation for chromosome 8 !
+Run IBD sharing estimation for chromosome 9 !
+Run IBD sharing estimation for chromosome 10 !
+Step 2 is finished, it took 45 minutes!
