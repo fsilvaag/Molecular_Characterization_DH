@@ -1,0 +1,106 @@
+Analysis Alejandro Ledesma Agosto 14 2020
+
+La base de datos corresponde a una secuencicion de 516 DH lines usando la metodologia de "Diversity Arrays Technology sequencing (DArT-seq)" (Jaccoud et al. 2001).
+Un total de 32939 SNP fueron encontrados al usar el genoma de la linea B73 version 4 como referencia (Jiao et al. 2017).
+
+# Filtrado de la base de datos:
+1. Usando Excel se remueven SNPs duplicados usando el conditional formating > highlight > Duplicates
+
+R/: Habian 142 SNPs que estaban duplicados. Se elimino el SNP que tenia mayor numero de arcadores con datos perdidos ("N")
+
+R/: El archivo se renombro como "No_Duplicates.hmp.txt"
+R/: En Ubuntu se uso el comando $ dos2unix No_Duplicates.hmp.txt para darle formato al archivo
+
+2. Remover INDELS:
+   Los INDELS se removieron usando TASSEL v.5.2.52 (Bradbury et al. 2007).
+
+R/: La base de datos no contenia ningun SNP con INDELS.
+
+
+3. Remover multiallelic sites:
+        i)   Convertir a VCF format usando TASSEL
+           $  /mnt/c/Program\ Files/TASSEL5/run_pipeline.pl -Xmx30g -fork1 -h No_Duplicates.hmp.txt -export -exportType VCF
+
+        ii) Remover multiallelic sites usando Plink1.9 software:   (https://www.cog-genomics.org/plink2/data)
+	$ /mnt/c/Users/fsilvaag/Box\ Sync/02.IBD/04.\ Plink/plink.exe --vcf No_Duplicates.vcf --biallelic-only strict --out Only_Biallelic
+
+	iii)  Convertir de BED/BIM/FAM, que es el formato de salida de Plink a PED/MAP (https://www.biostars.org/p/2277/)
+	$ /mnt/c/Users/fsilvaag/Box\ Sync/02.IBD/04.\ Plink/plink.exe --bfile Only_Biallelic --recode tab --out No_Multiallelic
+
+R/: No hubo multiallelic SNPs. Todos contenian <= 2 allelos
+
+
+4. Remover SNP con informacion perdida en mas del 5% (Calling rate del 95%): (http://zzz.bwh.harvard.edu/plink/thresh.shtml)
+	$ /mnt/c/Users/fsilvaag/Box\ Sync/02.IBD/04.\ Plink/plink.exe --file No_Multiallelic --geno 0.05 --make-bed --out No_Multiallelic_Call_rate
+	$ /mnt/c/Users/fsilvaag/Box\ Sync/02.IBD/04.\ Plink/plink.exe --bfile No_Multiallelic_Call_rate --recode tab --out No_Multiallelic_Call_rate
+
+Se eliminaron 22589 marcadores y quedaron en total 10197 marcadores.
+
+
+5. Imputacion usando BEAGLE version 5
+        i)  Convertir archivo a VCF formato
+        $ /mnt/c/Program\ Files/TASSEL5/run_pipeline.pl -fork1 -plink -ped No_Multiallelic_Call_rate -map PPPPP -export -exportType VCF
+
+        ii) Imputar SNPs
+        $ java -Xmx20g -jar ./../07.\ Beagle/beagle.21Sep19.ec3.jar gt=No_Multiallelic_Call_rate.vcf out=Imputed_GBS ap=true gp=true
+
+        iii) Convertir a Hapmap
+        $ /mnt/c/Program\ Files/TASSEL5/run_pipeline.pl -fork1 -vcf Imputed_GBS.vcf -export -exportType Hapmap
+
+
+6. Remover monomorphic markers.
+   Ver codigo de R "Remove_Monomorphic_markers.rmd"
+
+   R/: Se eliminron 2204 marcadores, dejando una base de datos con 502 genotipos y 7993 SNPs
+
+   # Finaliza el proceso de filtrado
+ #############################################################
+
+
+Para la identificacion de IBD segments y la probabilidad de IBD de cada SNP, usamos una base de datos que contiene 502 genotipos (487 DH y 15 Progenitores) y 7993 SNPs polimorficos.
+
+Identificar IBD segments usando el programa IBDLD
+
+1. Convertir Archivo filtrado a formato Plink (PED/MAP) usando Tassel
+         $ dos2unix Imputed_GBS.hmp.txt
+         $ /mnt/c/Program\ Files/TASSEL5/run_pipeline.pl -fork1 -h Imputed_GBS.hmp.txt -export -exportType Plink
+
+Manualmete se hace la conversion a cM usando una tasa de 1385.608 Kb = 1 cM
+
+2. Correr el programa IBDLD con la metodologia GIBDLD
+        $ /mnt/c/Users/deer1/Box\ Sync/02.IBD/14.IBDLD/IBDLDv3.38.1/ibdld -o GIBDLD
+          -plink Imputed_GBS.plk.ped
+          -m Imputed_GBS.plk.map
+          -method GIBDLD
+          -ploci 10 -dist 2
+          -ibd 90 --ibdtxt
+          -hbd --hbdtxt
+          -segment
+          --min 0.69
+          --SNP 50
+          --length 500
+
+3. Transponer los archivos de IBDLD
+              $ for i in *.ibdtxt; do awk -f transposed.awk $i > $i.transposed.txt; done
+              $ for i in *.segment; do awk -f transposed.awk $i > $i.transposed.txt; done
+
+
+
+
+
+## Como analisis adicional se corrio el codigo de R "LD_Decay.R" para estimar el LD Decay.
+
+Los resultados se pueden observar en el archivo de excel "ld_decay_table.csv". La base de datos a usar en este codigo fue creada al correr el analisis Linkage disequilibrium en TASSEL
+y exportar los resultados en .txt format ("LD_Decay.txt") en el folder "01. Filtrado".
+El archivo "ld_decay_table.csv" fue modificado al incluir para cada cromosoma la posicion en bp de inicio y fin, y el numero de marcadores. Esta informacion se saco de tassel.
+
+R/: El LD Decay fue de 348.8 Kb en promedio, lo cual corresponde a 1.3 SNPs. Segun la base de datos que usamos, tenemos 1 SNP cada 267.9 Kb en promedio, con el cromosoma 6 teniendo
+la tasa mas alta (1 SNP cada 301 Kb) y el cromosoma 1 con la menos al tener 1 SNP cada 227.6 Kb.
+
+Referencias
+
+1. Jaccoud D, Peng K, Feinstein D, Kilian A (2001) Diversity arrays: a solid state technology for sequence information independent genotyping. Nucleic acids research 29:e25-e25
+
+2. Jiao Y, Peluso P, Shi J, Liang T, Stitzer MC, Wang B, Campbell MS, Stein JC, Wei X, Chin C-S (2017) Improved maize reference genome with single-molecule technologies. Nature 546:524-527
+
+3.

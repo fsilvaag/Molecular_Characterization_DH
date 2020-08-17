@@ -1,0 +1,333 @@
+---
+title: "Untitled"
+author: "Fernando Silva Aguilar"
+date: "June 27, 2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Input of Segments file IBDLD
+The file was transpose using unix. We read each file separately.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(data.table)
+library(reshape2) 
+library(gtools)
+library(plyr)
+library(cowplot)
+library(lemon)
+library(ggthemes)
+library(patchwork)
+rm(list = ls())
+
+setwd("C:/Users/deer1/Google Drive/Alejandro/02. IBDLD/")
+for (i in 1:10) {
+  assign(paste0("seg",i),
+         as.data.frame(fread(
+paste0("GIBDLD_",i,".segment.transosed.txt"),
+header = F)))
+}
+
+```
+
+## Manipulating the segment file
+To each file we create the column name as the concatenated row 2 and 4 (iid1 and iid2).
+
+```{r}
+colnames(seg1) <- apply(seg1[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg2) <- apply(seg2[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg3) <- apply(seg3[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg4) <- apply(seg4[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg5) <- apply(seg5[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg6) <- apply(seg6[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg7) <- apply(seg7[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg8) <- apply(seg8[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg9) <- apply(seg9[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+colnames(seg10) <- apply(seg10[c(2,4),], 2, function(x) paste(x[1],x[2],sep = "_"))
+```
+
+*Remove the rows corresponding to fid1, iid1, fid2, and iid2 *
+```{r}
+seg1 <- seg1[-c(1:4,nrow(seg1)),]
+seg2 <- seg2[-c(1:4,nrow(seg2)),]
+seg3 <- seg3[-c(1:4,nrow(seg3)),]
+seg4 <- seg4[-c(1:4,nrow(seg4)),]
+seg5 <- seg5[-c(1:4,nrow(seg5)),]
+seg6 <- seg6[-c(1:4,nrow(seg6)),]
+seg7 <- seg7[-c(1:4,nrow(seg7)),]
+seg8 <- seg8[-c(1:4,nrow(seg8)),]
+seg9 <- seg9[-c(1:4,nrow(seg9)),]
+seg10 <- seg10[-c(1:4,nrow(seg10)),]
+```
+
+*Create vector with the name for the rows. See IBDLD manual for the names*
+```{r}
+ro <- c("start_bp","end_bp","start_snp","end_snp","tot_snp","tract_len_Kb")
+
+#Create column to register the name for each row*
+
+seg1$variable <- NA
+seg2$variable <- NA
+seg3$variable <- NA
+seg4$variable <- NA
+seg5$variable <- NA
+seg6$variable <- NA
+seg7$variable <- NA
+seg8$variable <- NA
+seg9$variable <- NA
+seg10$variable <- NA
+
+seg1$variable[1] <- c("chr")
+seg2$variable[1] <- c("chr")
+seg3$variable[1] <- c("chr")
+seg4$variable[1] <- c("chr")
+seg5$variable[1] <- c("chr")
+seg6$variable[1] <- c("chr")
+seg7$variable[1] <- c("chr")
+seg8$variable[1] <- c("chr")
+seg9$variable[1] <- c("chr")
+seg10$variable[1] <- c("chr")
+
+seg1$variable[2:nrow(seg1)] <- rep(ro,(nrow(seg1)-1)/6) # The six is the numer of parameters in ro
+seg2$variable[2:nrow(seg2)] <- rep(ro,(nrow(seg2)-1)/6)
+seg3$variable[2:nrow(seg3)] <- rep(ro,(nrow(seg3)-1)/6)
+seg4$variable[2:nrow(seg4)] <- rep(ro,(nrow(seg4)-1)/6)
+seg5$variable[2:nrow(seg5)] <- rep(ro,(nrow(seg5)-1)/6)
+seg6$variable[2:nrow(seg6)] <- rep(ro,(nrow(seg6)-1)/6)
+seg7$variable[2:nrow(seg7)] <- rep(ro,(nrow(seg7)-1)/6)
+seg8$variable[2:nrow(seg8)] <- rep(ro,(nrow(seg8)-1)/6)
+seg9$variable[2:nrow(seg9)] <- rep(ro,(nrow(seg9)-1)/6)
+seg10$variable[2:nrow(seg10)] <- rep(ro,(nrow(seg10)-1)/6)
+```
+
+
+*melt the data frames to creat a 4 column file*
+```{r}
+
+l <- mixedsort(ls()[grep("seg",ls())])
+for (i in 1:length(l)) {
+  d <- get(l[i])
+  d <- melt(d, id.vars = c("variable") )
+  colnames(d)[2] <- "Pair"
+  d <- subset(d, d$value != "")
+  d <- d[order(d[,"variable"]),]
+  
+  assign(paste0("sa",i),
+         d)
+}
+library(stringr)
+k <- mixedsort(ls()[grep("sa",ls())])
+for (i in 1:length(k)) {
+  d <- get(k[i])
+  d1 <- subset(d, d$variable == "start_bp")
+  colnames(d1)[3] <- "Start_bp"
+  d2 <- subset(d, d$variable == "end_bp")
+  colnames(d2)[3] <- "End_bp"
+  d3 <- subset(d, d$variable == "start_snp")
+  colnames(d3)[3] <- "Start_SNP"
+  d4 <- subset(d, d$variable == "end_snp")
+  colnames(d4)[3] <- "End_SNP"
+  d5 <- subset(d, d$variable == "tot_snp")
+  colnames(d5)[3] <- "Total_SNP"
+  
+  #df <- left_join(d1[,-1],d2[,-1]) %>% left_join(d3[,-1]) %>% left_join(d4[,-1]) %>% left_join(d5[,-1])
+  df <- cbind(d1[,-1],d2[,-1], d3[,-1],d4[,-1],d5[,-1])
+  df <- df[,-c(3,5,7,9)]
+  df$iid1 <- substr(df$Pair,1,as.numeric(gregexpr(paste(c("_C","_P"),collapse = "|"),df$Pair))-1) 
+  
+  df$iid2 <- substr(df$Pair,as.numeric(gregexpr(paste(c("_C","_P"),collapse = "|"),df$Pair))+1,str_length(df$Pair))
+  
+  df$Chromosome <- i
+  assign(paste0("sb",i),
+         df)
+}
+
+
+j <- mixedsort(ls()[grep("sb",ls())])
+list_df <- lapply(j, get)
+dt <- rbindlist(list_df)
+dt$Start_bp <- as.numeric(paste0(dt$Start_bp))
+dt$End_bp <- as.numeric(paste0(dt$End_bp))
+dt$Total_SNP <- as.numeric(paste0(dt$Total_SNP))
+
+
+```
+
+
+```{r}
+#Read the filtered GBS data. Filer for Monomorphic SNPs
+rm(list = ls()[!ls() %in% c("dt","path","path1")])
+library(openxlsx); library(plyr); library(tidyverse);library(data.table)
+
+path1 = "C:/Users/deer1/Google Drive/Alejandro/01. Filtrado/"
+gbs <-fread(paste0(path1,"Polymorphic_GBS.hmp.txt"))
+
+p <- gbs[,c("rs#","chrom","pos")] # Subseting GBS data
+
+KAL <- paste0("P",1:15)
+l <- mixedsort(unique(dt$iid1))
+l <- l[-grep("P",l)]
+
+d <- dt
+d1 <- subset(dt, !dt$iid1 %in% KAL & dt$iid2 %in% KAL)
+
+v <- mixedsort(as.character(unique(d1$Pair)))
+
+```
+
+
+```{r}
+
+## For columns with 1 when the SNP was inside IBD and NA otherwise
+st <- Sys.time()
+for (i in 1:length(l)) {
+  a <- l[i]
+  da <- d1[d1$iid1 %in% a,]
+  df <- as.data.frame(p)
+  a <- as.character(unique(da$Pair))
+for (j in 1:length(a)) {
+  b <- subset(da, da$Pair == a[j])
+df[[paste0(a[j])]] <- NA
+for (ii in 1:nrow(b)) {
+  to_range <- which(df$chrom == b$Chromosome[ii] &
+                     df$pos >= b$Start_bp[ii] & 
+                     df$pos <= b$End_bp[ii])
+  
+  df[to_range,paste0(a[j])] <- 1 
+  #df[,paste0("Tot")] <- apply(df[4:length(colnames(df))], 1, function(x) sum(x, na.rm = T))
+  }
+}
+  assign(paste0("df_",l[i]),
+         df)
+}
+
+s <- ls()[ls() %in% ls()[grep("df_",ls())]]
+length(s)
+
+for (i in 1:length(s)) {
+  dg <- get(s[i])
+  colnames(dg)[4] <- "Pru"
+  if(ncol(dg) > 4){
+    dg$Totl <- as.vector( apply(dg[,4:ncol(dg)],1,function(x) sum(x, na.rm = T)))
+  } else {dg$Totl <- dg$Pru} 
+  
+  colnames(dg)[4] <- colnames(get(s[i]))[4]
+  assign(paste("df_",s[i]),
+         dg) 
+}
+
+
+s <- ls()[ls() %in% ls()[grep("df_ df",ls())]]
+length(s)
+
+for (i in 1:length(s)) {
+  dg <- get(s[i])
+  na <- colnames(dg)[-c(1:3,ncol(dg))]
+  
+    for (ii in 1:length(na)) {
+      if(ncol(dg) > 5){
+    dg[,na[ii]] <- dg[ ,na[ii]]/dg[,ncol(dg)]
+                       } else {
+    dg[,na[ii]] <- dg[,na[ii]]
+  } }
+  
+  assign(paste("prueba_",s[i]),
+         dg)
+}
+
+s1 <- ls()[ls() %in% ls()[grep("prueba",ls())]]
+length(s1)
+
+list_df = lapply(ls()[ls() %in% s1], get)
+fd <- join_all(list_df, by=c('rs#',"chrom","pos"), type='left')
+path2 = "C:/Users/deer1/Google Drive/Alejandro/03. Resultados/"
+#write.xlsx(fd, paste0(path2,"Tabla_Contribution.xlsx"))
+
+EN <- Sys.time()
+EN - st
+
+rm(list = ls()[!ls() %in% c("dt","path","path1","fd")])
+```
+
+
+## Tabla de contribucion de cada Progenitor P1:P15
+```{r}
+fig <- data.frame(Sum = (apply(fd[,-c(1,2,3)], 2, function(x) sum(x, na.rm = T))))
+dim(fig)
+fig <- fig %>% rownames_to_column("Pair")
+fig$iid1 <- substr(fig$Pair,1,as.numeric(gregexpr(paste(c("_C","_P"), collapse = "|"), fig$Pair))-1)
+
+fig$iid2 <- substr(fig$Pair,as.numeric(gregexpr(paste(c("_C","_P"),collapse = "|"),fig$Pair))+1,str_length(fig$Pair))
+fig$Ciclo <- substr(fig$iid1,1,as.numeric(gregexpr(paste(c("_D"), collapse = "|"), fig$iid1))-1)
+fig <- subset(fig, fig$Pair %in% fig$Pair[-grep("Totl", 
+                                            fig$Pair)] )
+fig1 <- fig[,c("iid1","iid2","Sum")]
+ta <- reshape(fig1, idvar = "iid1", timevar = "iid2", direction = "wide")
+colnames(ta) <- gsub("Sum.","", colnames(ta))
+ta <- ta[mixedsort(rownames(ta)),mixedsort(colnames(ta))]
+ta <- ta %>% remove_rownames() %>% column_to_rownames("iid1")
+
+ta1 <- 100*ta/nrow(fd) # the total number of SNP are 7993
+
+ta1[is.na(ta1)] <- 0
+ta1$`Non-IBD` <- apply(ta1,1, function(x) (100 - sum(x)))
+path <- "C:/Users/deer1/Google Drive/Alejandro/03. Resultados/"
+ta1 <- ta1 %>% rownames_to_column("DH") 
+write.xlsx(ta1,paste0(path,"Figure_Structure.xlsx"))
+
+```
+
+
+```{r}
+#########################STRUCTURE GRAPH
+rm(list = ls()[!ls() %in% c("dt","fd","ta1","fig")])
+
+path <- "C:/Users/deer1/Google Drive/Alejandro/03. Resultados/"
+
+look <- openxlsx::read.xlsx(paste0(path, "Figure_Structure.xlsx"))
+look$Ciclo <- substr(look$DH,1,as.numeric(gregexpr("_D",look$DH))-1)
+
+d1 <- melt(look, id.vars = c("DH", "Ciclo"))
+d1$Ciclo <- as.factor(paste0(d1$Ciclo))
+d1$DH <- as.factor(paste0(d1$DH))
+
+## Cree un subset para poder visualizar la grafica ya que cada ciclo tiene mas de 100 DH lines.
+## En este ejemplo grafique solo 10 DH lines del ciclo 0 al crear una base de datos d2
+
+d2 <- subset(d1,d1$Ciclo == "C0") # Extraigo solo C0
+d2 <- subset(d2, d2$DH %in% unique(d2$DH)[1:10]) # Solo las 10 primeras DH lines
+
+d2 %>% mutate(variable = fct_relevel(variable, paste0("P",2:15))) %>% # Esto es para darle orden a los progenitores
+ggplot( aes(DH, value, fill = variable)) +
+  geom_col(color = "gray", size = 0.1) +
+    #facet_grid(~Ciclo, switch = "x", scales = "free", space = "free") + # Esto es si se quiere graficar por Ciclo
+  theme_minimal() + 
+  labs(x = "", 
+       y = "Progenitor Contribution (%)") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_discrete(expand = expansion(add = 1), position = "top") +
+  theme(panel.spacing.x = unit(0.1, "lines"),
+    axis.text.x = element_text(angle = 90, hjust = 0, 
+                               vjust = 0.5, face = 'bold', size = 12),
+    axis.text.x.top = element_text(vjust = 0.5),
+    axis.text.y = element_blank(),
+    axis.title = element_text(size = 20, face = 'bold'),
+    panel.grid = element_blank(),
+    strip.text = element_text(size = 15, face = 'bold', vjust = -1),
+    legend.title = element_blank(),
+    legend.text = element_text(size = 15),
+    legend.key.width = unit(1,"cm"),
+  #  legend.key.height = unit(1,"cm"),
+    legend.position = "bottom")+ 
+  guides(fill = guide_legend(nrow = 2)) # Para crear la leyenda en dos filas
+  #+ scale_fill_manual(values = c("#1B9E77","#D95F02","#7570B3","#E7298A","#66A61E","#E6AB02","#A6761D","#40004B","#666666"  )) # Tenes que incluir 15 colores diferentes
+
+```
+

@@ -1,0 +1,87 @@
+---
+title: "Analysis Alejandro"
+author: "Fernando Silva Aguilar"
+date: "8/14/2020"
+output: pdf_document
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Remove Monomorphic markers
+
+## Data input
+
+```{r}
+library(data.table)
+path <- "C:/Users/deer1/Google Drive/Alejandro/01. Filtrado/"
+data <- as.data.frame(fread(paste0(path,"Imputed_GBS.hmp.txt")))
+
+```
+
+## Funtion to identify Monomorphic
+
+```{r}
+#Code modified  from Impute.R from Cimmyt, given by Edna Mageto
+Impute=function(X)
+{
+  monomorphic=numeric()
+  for(i in 1:ncol(X))
+  {
+    cat('Imputing Marker ',i,'\n')
+    {
+      if(length(as.numeric(table(X[,i])))==1)
+      {
+        monomorphic=c(monomorphic,i)
+      }else{
+        tmp=table(X[,i])
+        #	x=as.numeric(names(tmp)) #Hide if you only want to find the monomorphic markers
+        #		X[which(is.na(X[,i])),i]=sample(x=x,size=sum(is.na(X[,i])),replace=TRUE,prob=tmp/sum(tmp))
+      } #Hide above line if you only want to find the monomorphic markers
+    }
+  }
+  return(list(X=X,monomorphic=monomorphic))
+}
+```
+
+```{r}
+map=data[,1:11]
+dim(map)
+```
+
+```{r}
+markers=data[,-c(2:11)]
+dim(markers)
+```
+
+```{r,message=FALSE}
+library(tidyverse)
+#Create the rownames as the rs#
+markers <- markers %>% remove_rownames() %>% 
+  column_to_rownames(var = "rs#")
+dim(markers)
+markers[1:5,1:5]
+```
+
+```{r}
+markers1=t(markers)
+dim(markers1)
+markers1[1:5,1:5]
+```
+
+
+```{r}
+out_impute=Impute(markers1)
+
+X = markers1[,-out_impute$monomorphic]
+
+X1 <- data[data$`rs#` %in% colnames(X),]
+dim(X1) # columnas debe ser = al Numero genotipos mas 11. El numero de filas debe ser igual al numero de columnas de X
+
+#Activar el codigo de abajo para exortar a base de datos filtrada por monomorphic SNPs
+fwrite(X1,paste0(path,"Polymorphic_GBS.hmp.txt"),  quote = F, row.names = F, sep = "\t")
+
+```

@@ -1,0 +1,24 @@
+PLINK v1.90b6.12 64-bit (28 Oct 2019)
+Options in effect:
+  --bfile Call_rate
+  --out No_Missing
+  --recode tab
+
+Hostname: FERNANDO
+Working directory: C:\Users\deer1\Google Drive\Alejandro\01. Filtrado
+Start time: Fri Aug 14 17:11:11 2020
+
+Random number seed: 1597443071
+8084 MB RAM detected; reserving 4042 MB for main workspace.
+10197 variants loaded from .bim file.
+502 people (0 males, 0 females, 502 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to No_Missing.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 0 founders and 502 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.986997.
+10197 variants and 502 people pass filters and QC.
+Note: No phenotypes present.
+--recode ped to No_Missing.ped + No_Missing.map ... done.
+
+End time: Fri Aug 14 17:11:11 2020

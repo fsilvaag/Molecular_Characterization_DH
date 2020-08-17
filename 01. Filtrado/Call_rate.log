@@ -1,0 +1,30 @@
+PLINK v1.90b6.12 64-bit (28 Oct 2019)
+Options in effect:
+  --file No_Duplicates.plk
+  --geno 0.05
+  --make-bed
+  --out Call_rate
+
+Hostname: FERNANDO
+Working directory: C:\Users\deer1\Google Drive\Alejandro\01. Filtrado
+Start time: Fri Aug 14 17:10:38 2020
+
+Random number seed: 1597443038
+8084 MB RAM detected; reserving 4042 MB for main workspace.
+Scanning .ped file... done.
+Performing single-pass .bed write (32786 variants, 502 people).
+--file: Call_rate-temporary.bed + Call_rate-temporary.bim +
+Call_rate-temporary.fam written.
+32786 variants loaded from .bim file.
+502 people (0 males, 0 females, 502 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to Call_rate.nosex .
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 0 founders and 502 nonfounders present.
+Calculating allele frequencies... done.
+Total genotyping rate is 0.788099.
+22589 variants removed due to missing genotype data (--geno).
+10197 variants and 502 people pass filters and QC.
+Note: No phenotypes present.
+--make-bed to Call_rate.bed + Call_rate.bim + Call_rate.fam ... done.
+
+End time: Fri Aug 14 17:10:39 2020
